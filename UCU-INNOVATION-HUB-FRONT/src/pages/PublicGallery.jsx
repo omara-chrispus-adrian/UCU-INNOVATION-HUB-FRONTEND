@@ -1,307 +1,281 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import '../styles/Gallery.css';
+import { useState, useEffect } from 'react';
+import ProjectCard from '../components/ProjectCard';
+import SearchFilters from '../components/SearchFilters';
+import HeroSlideshow from '../components/HeroSlideshow';
+import { projectsAPI } from '../utils/api';
+import '../styles/PublicGallery.css';
+import '../styles/HeroSlideshow.css';
 
 const PublicGallery = () => {
-  const { user, isAuthenticated } = useAuth();
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [filters, setFilters] = useState({
-    faculty: 'all',
-    category: 'all',
-    technology: 'all',
-    searchTerm: ''
-  });
+  const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [projects] = useState([
+  // Mock data for development (remove when backend is ready)
+  const mockProjects = [
     {
       id: 1,
-      title: 'Smart Waste Management System',
-      description: 'An IoT-based waste management solution that optimizes waste collection routes.',
-      faculty: 'engineering',
-      category: 'IoT',
-      technologies: ['Arduino', 'Python', 'IoT', 'Mobile App'],
-      teamMembers: ['John Doe', 'Alice Smith'],
-      approvalDate: '2025-10-15',
-      githubLink: 'https://github.com/ucu/waste-management'
+      title: 'Autonomous Robotic Arm for Manufacturing',
+      description: 'A 6-axis robotic arm designed for precision assembly in manufacturing environments. Features computer vision for object recognition, Arduino Mega control, and servo motor coordination. Successfully tested in automated PCB assembly with 98% accuracy.',
+      faculty: 'Engineering, Design and Technology',
+      category: 'Robotics',
+      technologies: 'Arduino Mega, Python, OpenCV, Servo Motors, Computer Vision',
+      year: 2025,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/robotic-arm',
+      image: '/images/robotics_project.png'
     },
     {
       id: 2,
-      title: 'Campus Navigation Mobile App',
-      description: 'A mobile application that helps students navigate the university campus.',
-      faculty: 'engineering',
-      category: 'Mobile App',
-      technologies: ['React Native', 'Firebase', 'Google Maps'],
-      teamMembers: ['Mike Johnson', 'Sarah Lee'],
-      approvalDate: '2025-11-01',
-      githubLink: 'https://github.com/ucu/campus-nav'
+      title: 'Smart Home IoT Ecosystem',
+      description: 'Complete home automation system using ESP32 microcontrollers with temperature, humidity, and motion sensors. Mobile app provides real-time monitoring and control. Features include automated lighting, climate control, and security alerts with cloud integration.',
+      faculty: 'Engineering, Design and Technology',
+      category: 'IoT & Embedded Systems',
+      technologies: 'ESP32, MQTT, React Native, Firebase, Cloud IoT',
+      year: 2025,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/smart-home',
+      image: '/images/iot_project.png'
     },
     {
       id: 3,
-      title: 'AI-Powered Student Chatbot',
-      description: 'An intelligent chatbot for student admissions and university inquiries.',
-      faculty: 'engineering',
+      title: 'AI-Powered Crop Disease Detection System',
+      description: 'Machine learning application that identifies crop diseases from leaf images using convolutional neural networks. Trained on 50,000+ images with 94% accuracy. Mobile app allows farmers to get instant diagnoses and treatment recommendations in local languages.',
+      faculty: 'Science and Technology',
       category: 'AI/Machine Learning',
-      technologies: ['Python', 'TensorFlow', 'NLP', 'Flask'],
-      teamMembers: ['Jane Smith', 'Robert Brown'],
-      approvalDate: '2025-10-20',
-      githubLink: 'https://github.com/ucu/chatbot'
+      technologies: 'Python, TensorFlow, Keras, Flutter, CNN, Image Processing',
+      year: 2025,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/crop-disease-ai',
+      image: '/images/ai_machine_learning.png'
     },
     {
       id: 4,
-      title: 'Business Analytics Dashboard',
-      description: 'A dashboard for analyzing business metrics and performance indicators.',
-      faculty: 'business',
-      category: 'Web App',
-      technologies: ['React', 'Node.js', 'MongoDB', 'Chart.js'],
-      teamMembers: ['Tom Wilson', 'Emily Davis'],
-      approvalDate: '2025-11-05',
-      githubLink: 'https://github.com/ucu/analytics'
+      title: 'Enterprise Resource Planning Dashboard',
+      description: 'Comprehensive ERP system for small and medium enterprises featuring inventory management, financial tracking, and employee management. Real-time analytics dashboard with predictive insights using machine learning for demand forecasting.',
+      faculty: 'Business and Administration',
+      category: 'Software Development',
+      technologies: 'React, Node.js, PostgreSQL, Chart.js, Machine Learning',
+      year: 2025,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/erp-system',
+      image: '/images/software_development.png'
     },
     {
       id: 5,
-      title: 'Legal Document Management System',
-      description: 'A system for managing and organizing legal documents in the law faculty.',
-      faculty: 'law',
-      category: 'Web App',
-      technologies: ['Vue.js', 'Django', 'PostgreSQL'],
-      teamMembers: ['Lisa Anderson', 'David Cooper'],
-      approvalDate: '2025-10-28',
-      githubLink: 'https://github.com/ucu/legal-docs'
+      title: 'Mobile Banking App for Rural Communities',
+      description: 'Cross-platform mobile banking solution designed for underserved rural communities. Features offline transaction mode, SMS backup, biometric authentication, and support for local languages. Integrates with mobile money platforms and includes financial literacy modules.',
+      faculty: 'Business and Administration',
+      category: 'Mobile Development',
+      technologies: 'React Native, Node.js, MongoDB, Blockchain, Biometrics',
+      year: 2025,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/rural-banking',
+      image: '/images/mobile_app_dev.png'
     },
     {
       id: 6,
-      title: 'Language Learning Platform',
-      description: 'An interactive platform for learning African languages.',
-      faculty: 'humanities',
-      category: 'Web App',
-      technologies: ['React', 'Node.js', 'MongoDB', 'Socket.io'],
-      teamMembers: ['Grace Nakambe', 'Joseph Okonkwo'],
-      approvalDate: '2025-11-02',
-      githubLink: 'https://github.com/ucu/language-learn'
+      title: 'Wearable Health Monitoring Device',
+      description: 'IoT wearable that continuously tracks vital signs including heart rate, blood oxygen (SpO2), temperature, and activity levels. Data syncs to cloud for analysis and sends emergency alerts to designated contacts. Includes predictive health analytics.',
+      faculty: 'Science and Technology',
+      category: 'IoT & Embedded Systems',
+      technologies: 'Arduino, Sensors, Cloud IoT, Mobile App, Data Analytics',
+      year: 2024,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/health-wearable',
+      image: '/images/embedded_systems.png'
     },
     {
       id: 7,
-      title: 'Environmental Data Analysis Tool',
-      description: 'Tool for analyzing environmental data and climate trends.',
-      faculty: 'sciences',
-      category: 'Data Science',
-      technologies: ['Python', 'Pandas', 'Matplotlib', 'Jupyter'],
-      teamMembers: ['Dr. Sarah Kim', 'Mark Okoro'],
-      approvalDate: '2025-10-25',
-      githubLink: 'https://github.com/ucu/env-analysis'
+      title: 'Legal Case Management System',
+      description: 'Digital platform for law firms to manage cases, documents, and client communications. Features automated document generation, deadline tracking, case law research integration, and secure client portal. Compliant with data protection regulations.',
+      faculty: 'Law',
+      category: 'Software Development',
+      technologies: 'Vue.js, Django, PostgreSQL, Document Processing, Encryption',
+      year: 2024,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/legal-case-mgmt',
+      image: '/images/software_development.png'
     },
     {
       id: 8,
-      title: 'Student Mentorship Platform',
-      description: 'Connect senior and junior students for academic mentoring.',
-      faculty: 'engineering',
-      category: 'Web App',
-      technologies: ['React', 'Node.js', 'PostgreSQL', 'Real-time Chat'],
-      teamMembers: ['Chris Mbewe', 'Linda Okafor'],
-      approvalDate: '2025-11-08',
-      githubLink: 'https://github.com/ucu/mentorship'
+      title: 'Voice-Controlled Assistive Wheelchair',
+      description: 'Innovative assistive technology featuring voice-controlled wheelchair navigation with obstacle avoidance. Uses speech recognition in multiple languages, ultrasonic sensors for safety, and GPS for outdoor navigation. Designed for individuals with limited mobility.',
+      faculty: 'Engineering, Design and Technology',
+      category: 'Robotics',
+      technologies: 'Raspberry Pi, Speech Recognition, Ultrasonic Sensors, GPS, Motor Control',
+      year: 2025,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/voice-wheelchair',
+      image: '/images/robotics_project.png'
+    },
+    {
+      id: 9,
+      title: 'Interactive African Languages Learning Platform',
+      description: 'Gamified e-learning platform for African languages with speech recognition for pronunciation practice. Features interactive lessons, cultural context, progress tracking, and community forums. Supports Luganda, Swahili, and other regional languages.',
+      faculty: 'Social Sciences',
+      category: 'Educational Technology',
+      technologies: 'React, Node.js, Speech Recognition, Gamification, MongoDB',
+      year: 2025,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/language-platform',
+      image: '/images/mobile_app_dev.png'
+    },
+    {
+      id: 10,
+      title: 'Climate Data Analysis and Prediction Tool',
+      description: 'Advanced data science tool for analyzing climate patterns and predicting weather trends in East Africa. Uses historical data and machine learning models to forecast rainfall, temperature changes, and extreme weather events. Provides actionable insights for agriculture.',
+      faculty: 'Science and Technology',
+      category: 'Data Science & AI',
+      technologies: 'Python, Pandas, TensorFlow, Jupyter, Data Visualization, APIs',
+      year: 2024,
+      status: 'approved',
+      github_link: 'https://github.com/ucu/climate-analysis',
+      image: '/images/ai_machine_learning.png'
     }
-  ]);
+  ];
 
-  const filteredProjects = projects.filter(project => {
-    if (filters.faculty !== 'all' && project.faculty !== filters.faculty) return false;
-    if (filters.category !== 'all' && project.category !== filters.category) return false;
-    if (filters.technology !== 'all' && !project.technologies.includes(filters.technology)) return false;
-    if (filters.searchTerm && !project.title.toLowerCase().includes(filters.searchTerm.toLowerCase())) return false;
-    return true;
-  });
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
-  const faculties = ['all', ...new Set(projects.map(p => p.faculty))];
-  const categories = ['all', ...new Set(projects.map(p => p.category))];
-  const technologies = ['all', ...new Set(projects.flatMap(p => p.technologies))];
-
-  const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({ ...prev, [filterName]: value }));
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      // Try to fetch from API, fallback to mock data
+      try {
+        const response = await projectsAPI.getAll({ status: 'approved' });
+        const projectsData = response.data.projects || response.data || [];
+        setProjects(projectsData);
+        setFilteredProjects(projectsData);
+      } catch (apiError) {
+        // Use mock data if API is not available
+        console.log('Using mock data:', apiError.message);
+        setProjects(mockProjects);
+        setFilteredProjects(mockProjects);
+      }
+    } catch (err) {
+      setError('Failed to load projects');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div className="gallery-container">
-      <header className="gallery-header">
-        <div className="header-content">
-          <h1>UCU Innovators Hub</h1>
-          <p>Discover innovative projects and research from our community</p>
+  const handleFilterChange = (filters) => {
+    let filtered = [...projects];
+
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(project =>
+        project.title.toLowerCase().includes(searchLower) ||
+        project.description.toLowerCase().includes(searchLower) ||
+        project.technologies.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Faculty filter
+    if (filters.faculty) {
+      filtered = filtered.filter(project => project.faculty === filters.faculty);
+    }
+
+    // Category filter
+    if (filters.category) {
+      filtered = filtered.filter(project => project.category === filters.category);
+    }
+
+    // Year filter
+    if (filters.year) {
+      filtered = filtered.filter(project => project.year === parseInt(filters.year));
+    }
+
+    setFilteredProjects(filtered);
+  };
+
+  if (loading) {
+    return (
+      <div className="loading">
+        <div className="loading-content">
+          <div className="spinner"></div>
+          <p>Loading projects...</p>
         </div>
-        <div className="header-actions">
-          {!isAuthenticated && (
-            <>
-              <a href="/login" className="btn-secondary">Login</a>
-              <a href="/register" className="btn-primary">Register</a>
-            </>
-          )}
-          {isAuthenticated && (
-            <p>Welcome, {user?.name}! <a href={`/dashboard/${user?.role}`}>Go to Dashboard</a></p>
-          )}
-        </div>
-      </header>
+      </div>
+    );
+  }
 
-      <main className="gallery-main">
-        <aside className="filters-sidebar">
-          <h3>Filters</h3>
-          
-          <div className="filter-group">
-            <label>Search</label>
-            <input
-              type="text"
-              placeholder="Search projects..."
-              value={filters.searchTerm}
-              onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label>Faculty</label>
-            <select 
-              value={filters.faculty}
-              onChange={(e) => handleFilterChange('faculty', e.target.value)}
-            >
-              <option value="all">All Faculties</option>
-              <option value="engineering">Engineering, Design & Tech</option>
-              <option value="business">Business & Economics</option>
-              <option value="law">Law</option>
-              <option value="humanities">Humanities & Social Sciences</option>
-              <option value="sciences">Natural & Physical Sciences</option>
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Category</label>
-            <select 
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-            >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat === 'all' ? 'All Categories' : cat}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Technology</label>
-            <select 
-              value={filters.technology}
-              onChange={(e) => handleFilterChange('technology', e.target.value)}
-            >
-              {technologies.slice(0, 10).map(tech => (
-                <option key={tech} value={tech}>
-                  {tech === 'all' ? 'All Technologies' : tech}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button 
-            className="btn-secondary"
-            onClick={() => setFilters({
-              faculty: 'all',
-              category: 'all',
-              technology: 'all',
-              searchTerm: ''
-            })}
-          >
-            Reset Filters
+  if (error) {
+    return (
+      <div className="error-container">
+        <div className="error-content">
+          <p className="error-message">{error}</p>
+          <button onClick={fetchProjects} className="btn btn-primary">
+            Try Again
           </button>
-        </aside>
+        </div>
+      </div>
+    );
+  }
 
-        <section className="projects-section">
-          <h2>Featured Projects ({filteredProjects.length})</h2>
-          
-          {filteredProjects.length === 0 ? (
-            <div className="no-results">
-              <p>No projects found matching your filters. Try adjusting your search.</p>
+  return (
+    <div className="public-gallery">
+      {/* Hero Section */}
+      <section className="hero-section">
+        <HeroSlideshow />
+        <div className="hero-overlay"></div>
+        <div className="container-custom">
+          <div className="hero-content">
+            <h1 className="hero-title">
+              UCU Innovators Hub
+            </h1>
+            <p className="hero-subtitle">
+              Showcasing cutting-edge projects in Robotics, Embedded Systems, Software Development, IoT, Mobile Apps & AI
+            </p>
+            <div className="hero-cta">
+              <a href="#projects" className="btn btn-primary btn-lg">
+                Explore Projects
+              </a>
             </div>
-          ) : (
-            <div className="projects-grid">
-              {filteredProjects.map(project => (
-                <div 
-                  key={project.id} 
-                  className="project-card"
-                  onClick={() => setSelectedProject(project)}
-                >
-                  <div className="project-card-header">
-                    <h3>{project.title}</h3>
-                    <span className="category-badge">{project.category}</span>
-                  </div>
-                  <p className="project-card-description">{project.description}</p>
-                  <div className="project-team">
-                    <strong>Team:</strong> {project.teamMembers.join(', ')}
-                  </div>
-                  <div className="tech-tags">
-                    {project.technologies.slice(0, 3).map((tech, idx) => (
-                      <span key={idx} className="tech-tag">{tech}</span>
-                    ))}
-                    {project.technologies.length > 3 && (
-                      <span className="tech-tag">+{project.technologies.length - 3}</span>
-                    )}
-                  </div>
-                  <button className="btn-view">View Details</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
-
-      {selectedProject && (
-        <div className="modal-overlay" onClick={() => setSelectedProject(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setSelectedProject(null)}>✕</button>
-            
-            <h2>{selectedProject.title}</h2>
-            <p className="modal-category">{selectedProject.category}</p>
-            
-            <div className="modal-section">
-              <h4>Description</h4>
-              <p>{selectedProject.description}</p>
-            </div>
-
-            <div className="modal-section">
-              <h4>Team Members</h4>
-              <ul>
-                {selectedProject.teamMembers.map((member, idx) => (
-                  <li key={idx}>{member}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="modal-section">
-              <h4>Technologies Used</h4>
-              <div className="tech-tags">
-                {selectedProject.technologies.map((tech, idx) => (
-                  <span key={idx} className="tech-tag">{tech}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="modal-section">
-              <h4>Approval Date</h4>
-              <p>{selectedProject.approvalDate}</p>
-            </div>
-
-            {selectedProject.githubLink && (
-              <div className="modal-actions">
-                <a href={selectedProject.githubLink} target="_blank" rel="noopener noreferrer" className="btn-primary">
-                  View on GitHub
-                </a>
-              </div>
-            )}
-
-            {isAuthenticated && (
-              <div className="modal-feedback">
-                <h4>Leave Feedback</h4>
-                <textarea placeholder="Share your thoughts on this project..." rows="4"></textarea>
-                <button className="btn-secondary">Submit Feedback</button>
-              </div>
-            )}
           </div>
         </div>
-      )}
+      </section>
+
+      {/* Main Content */}
+      <section id="projects" className="gallery-content container-custom">
+        <SearchFilters onFilterChange={handleFilterChange} />
+
+        {/* Projects Grid */}
+        <div className="projects-header">
+          <h2 className="projects-heading">
+            🚀 Innovation Showcase
+          </h2>
+          <p className="projects-subtitle">
+            Explore cutting-edge student projects in Robotics, IoT, AI, and Embedded Systems
+          </p>
+          <p className="projects-count">
+            Showing {filteredProjects.length} of {projects.length} innovative projects
+          </p>
+        </div>
+
+        {filteredProjects.length === 0 ? (
+          <div className="no-results card">
+            <div className="no-results-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="no-results-title">No Projects Found</h3>
+            <p className="no-results-text">Try adjusting your filters to see more results</p>
+          </div>
+        ) : (
+          <div className="projects-grid">
+            {filteredProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };

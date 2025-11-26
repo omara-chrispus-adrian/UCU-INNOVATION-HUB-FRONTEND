@@ -1,143 +1,171 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/Auth.css';
+import { authAPI } from '../utils/api';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: 'student'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const validateForm = () => {
-    if (!formData.email || !formData.password) {
-      setError('Email and password are required');
-      return false;
-    }
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError('Please enter a valid email address');
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return false;
-    }
-    return true;
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (!validateForm()) {
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // Simulate API call
-      const mockUser = {
-        id: Math.random().toString(36).substr(2, 9),
-        email: formData.email,
-        name: formData.email.split('@')[0],
-        role: formData.role
-      };
+      const response = await authAPI.login(formData);
+      const { user, token } = response.data;
 
-      const mockToken = 'mock-jwt-token-' + Date.now();
+      login(user, token);
 
-      login(mockUser, mockToken);
-
-      // Navigate based on role
-      if (formData.role === 'student') {
-        navigate('/dashboard/student');
-      } else if (formData.role === 'supervisor') {
-        navigate('/dashboard/supervisor');
-      } else {
-        navigate('/dashboard/admin');
+      // Redirect based on role
+      switch (user.role) {
+        case 'student':
+          navigate('/dashboard/student');
+          break;
+        case 'supervisor':
+          navigate('/dashboard/supervisor');
+          break;
+        case 'admin':
+          navigate('/dashboard/admin');
+          break;
+        default:
+          navigate('/');
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
-      console.error(err);
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h1>UCU Innovators Hub</h1>
-        <h2>Login</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your.email@ucu.ac.ug"
-              required
-            />
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="card animate-slide-up">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-white font-bold text-2xl">U</span>
+            </div>
+            <h2 className="text-3xl font-bold gradient-text">Welcome Back</h2>
+            <p className="text-gray-600 mt-2">Sign in to your account</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-fade-in">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
 
-          <div className="form-group">
-            <label htmlFor="role">Login as</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="input"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="input"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  Remember me
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+                  Forgot password?
+                </a>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="student">Student</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="admin">Administrator</option>
-            </select>
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </span>
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
+                Register here
+              </Link>
+            </p>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="submit-btn"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <p className="auth-footer">
-          Don't have an account? <a href="/register">Register here</a>
-        </p>
+          {/* Demo Credentials */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs font-medium text-blue-800 mb-2">Demo Credentials:</p>
+            <div className="text-xs text-blue-700 space-y-1">
+              <p><strong>Student:</strong> student@ucu.ac.ug / password123</p>
+              <p><strong>Supervisor:</strong> supervisor@ucu.ac.ug / password123</p>
+              <p><strong>Admin:</strong> admin@ucu.ac.ug / password123</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

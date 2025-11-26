@@ -1,53 +1,61 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/Auth.css';
+import { authAPI } from '../utils/api';
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    full_name: '',
     email: '',
     password: '',
     confirmPassword: '',
     role: 'student',
-    faculty: 'engineering',
-    studentId: ''
+    faculty: '',
+    department: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
-  const navigate = useNavigate();
+
+  const faculties = [
+    'Engineering, Design and Technology',
+    'Business and Administration',
+    'Science and Technology',
+    'Social Sciences',
+    'Law',
+    'Theology',
+  ];
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    setError('');
   };
 
   const validateForm = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
-      setError('All fields are required');
+    if (!formData.full_name || !formData.email || !formData.password) {
+      setError('Please fill in all required fields');
       return false;
     }
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError('Please enter a valid email address');
-      return false;
-    }
+
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError('Password must be at least 6 characters long');
       return false;
     }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
     }
-    if (formData.role === 'student' && !formData.studentId) {
-      setError('Student ID is required for students');
+
+    if (!formData.email.includes('@')) {
+      setError('Please enter a valid email address');
       return false;
     }
+
     return true;
   };
 
@@ -62,171 +70,210 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Simulate API call
-      const mockUser = {
-        id: Math.random().toString(36).substr(2, 9),
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        name: `${formData.firstName} ${formData.lastName}`,
-        role: formData.role,
-        faculty: formData.faculty,
-        studentId: formData.studentId || null
-      };
+      const { confirmPassword, ...registrationData } = formData;
+      const response = await authAPI.register(registrationData);
+      const { user, token } = response.data;
 
-      const mockToken = 'mock-jwt-token-' + Date.now();
+      register(user, token);
 
-      register(mockUser, mockToken);
-
-      // Navigate based on role
-      if (formData.role === 'student') {
-        navigate('/dashboard/student');
-      } else if (formData.role === 'supervisor') {
-        navigate('/dashboard/supervisor');
-      } else {
-        navigate('/dashboard/admin');
+      // Redirect based on role
+      switch (user.role) {
+        case 'student':
+          navigate('/dashboard/student');
+          break;
+        case 'supervisor':
+          navigate('/dashboard/supervisor');
+          break;
+        case 'admin':
+          navigate('/dashboard/admin');
+          break;
+        default:
+          navigate('/');
       }
     } catch (err) {
-      setError('Registration failed. Please try again.');
-      console.error(err);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card auth-card-register">
-        <h1>UCU Innovators Hub</h1>
-        <h2>Create Account</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="firstName">First Name</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                placeholder="John"
-                required
-              />
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl w-full">
+        <div className="card animate-slide-up">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-white font-bold text-2xl">U</span>
             </div>
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Doe"
-                required
-              />
-            </div>
+            <h2 className="text-3xl font-bold gradient-text">Create Account</h2>
+            <p className="text-gray-600 mt-2">Join the UCU Innovators Hub</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your.email@ucu.ac.ug"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="role">Register as</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-            >
-              <option value="student">Student</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="admin">Administrator</option>
-            </select>
-          </div>
-
-          {formData.role === 'student' && (
-            <div className="form-group">
-              <label htmlFor="studentId">Student ID</label>
-              <input
-                type="text"
-                id="studentId"
-                name="studentId"
-                value={formData.studentId}
-                onChange={handleChange}
-                placeholder="e.g., UCU2024001"
-                required
-              />
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-fade-in">
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
 
-          <div className="form-group">
-            <label htmlFor="faculty">Faculty</label>
-            <select
-              id="faculty"
-              name="faculty"
-              value={formData.faculty}
-              onChange={handleChange}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Full Name */}
+              <div>
+                <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name *
+                </label>
+                <input
+                  id="full_name"
+                  name="full_name"
+                  type="text"
+                  required
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address *
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="you@ucu.ac.ug"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password *
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password *
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              {/* Role */}
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                  Role *
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="student">Student</option>
+                  <option value="supervisor">Supervisor</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              {/* Faculty */}
+              <div>
+                <label htmlFor="faculty" className="block text-sm font-medium text-gray-700 mb-2">
+                  Faculty
+                </label>
+                <select
+                  id="faculty"
+                  name="faculty"
+                  value={formData.faculty}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="">Select Faculty</option>
+                  {faculties.map((faculty) => (
+                    <option key={faculty} value={faculty}>
+                      {faculty}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Department */}
+              <div className="md:col-span-2">
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                  Department
+                </label>
+                <input
+                  id="department"
+                  name="department"
+                  type="text"
+                  value={formData.department}
+                  onChange={handleChange}
+                  className="input"
+                  placeholder="e.g., Computer Science"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="engineering">Engineering, Design & Technology</option>
-              <option value="business">Business & Economics</option>
-              <option value="law">Law</option>
-              <option value="humanities">Humanities & Social Sciences</option>
-              <option value="sciences">Natural & Physical Sciences</option>
-            </select>
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating account...
+                </span>
+              ) : (
+                'Create Account'
+              )}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+                Sign in here
+              </Link>
+            </p>
           </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm password"
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="submit-btn"
-          >
-            {loading ? 'Creating Account...' : 'Register'}
-          </button>
-        </form>
-
-        <p className="auth-footer">
-          Already have an account? <a href="/login">Login here</a>
-        </p>
+        </div>
       </div>
     </div>
   );
