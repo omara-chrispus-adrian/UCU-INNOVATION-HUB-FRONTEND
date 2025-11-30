@@ -1,5 +1,11 @@
 .search-filters {
-    margin-bottom: 32px;
+    margin-bottom: 40px;
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 28px;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow-md);
 }
 
 .filters-header {
@@ -10,28 +16,36 @@
 }
 
 .filters-title {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--text-primary);
 }
 
 .reset-button {
     font-size: 14px;
-    color: #6b7280;
-    background: none;
-    border: none;
+    color: var(--text-on-primary);
+    background: var(--danger-color);
+    border: 2px solid var(--danger-color);
+    padding: 8px 18px;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: 500;
-    transition: color 0.3s ease;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .reset-button:hover {
-    color: var(--primary-600);
+    background: #DC2626;
+    border-color: #DC2626;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
 }
 
 .filters-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
 }
 
 @media (min-width: 768px) {
@@ -58,7 +72,46 @@
 .filter-label {
     display: block;
     font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 8px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Enhanced select and input styling */
+.filter-item select,
+.filter-item input {
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filter-item select:focus,
+.filter-item input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(45, 95, 79, 0.15);
+    background: var(--bg-card);
+}
+
+.filter-item select:hover,
+.filter-item input:hover {
+    border-color: var(--primary-500);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-filters {
+        padding: 20px;
+    }
+
+    .filters-title {
+        font-size: 22px;
+    }
 }

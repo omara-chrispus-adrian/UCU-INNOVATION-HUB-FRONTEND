@@ -4,12 +4,12 @@ const HeroSlideshow = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
     const slides = [
-        '/images/robotics_project.png',
-        '/images/embedded_systems.png',
-        '/images/software_development.png',
-        '/images/iot_project.png',
-        '/images/mobile_app_dev.png',
-        '/images/ai_machine_learning.png'
+        '/images/slide_1.png',
+        '/images/slide_2.png',
+        '/images/slide_3.png',
+        '/images/slide_4.png',
+        '/images/slide_5.png',
+        '/images/slide_6.png'
     ];
 
     useEffect(() => {

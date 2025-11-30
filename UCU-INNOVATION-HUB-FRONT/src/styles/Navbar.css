@@ -1,7 +1,9 @@
-/* Navbar Styles - Alpha Design */
+/* Navbar Styles - Forest Green Theme */
 .navbar {
-    background: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-md);
+    border-bottom: 2px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -22,7 +24,7 @@
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    transition: transform 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .navbar-logo:hover {
@@ -30,48 +32,71 @@
 }
 
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
-    border-radius: 8px;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 100%);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    color: white;
-    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-on-primary);
+    font-size: 24px;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.navbar-logo:hover .logo-icon {
+    box-shadow: var(--shadow-lg);
+    transform: rotate(-5deg);
 }
 
 .logo-text {
-    font-size: 20px;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 22px;
+    font-weight: 800;
 }
 
 /* Navigation Links */
 .navbar-links {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
     margin-left: auto;
 }
 
 .nav-link {
-    color: #4b5563;
+    color: var(--text-secondary);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 700;
     font-size: 15px;
-    padding: 8px 16px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-emerald) 0%, var(--accent-gold) 100%);
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.nav-link:hover::before {
+    width: 70%;
 }
 
 .nav-link:hover {
     color: var(--primary-600);
-    background: #f3f4f6;
+    background: var(--bg-secondary);
 }
 
 /* Auth Buttons */
@@ -82,7 +107,12 @@
 }
 
 .auth-buttons .btn {
-    min-width: 90px;
+    min-width: 100px;
+}
+
+.btn-sm {
+    padding: 8px 20px;
+    font-size: 13px;
 }
 
 /* User Info */
@@ -96,22 +126,25 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 2px;
+    gap: 4px;
 }
 
 .user-name {
     font-size: 14px;
-    font-weight: 600;
-    color: #1f2937;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .user-role {
-    font-size: 12px;
-    color: #6b7280;
-    text-transform: capitalize;
-    background: #f3f4f6;
-    padding: 2px 8px;
-    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text-on-primary);
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent-emerald) 0%, var(--primary-600) 100%);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
 /* Responsive */
@@ -125,13 +158,13 @@
     }
 
     .logo-text {
-        font-size: 16px;
+        font-size: 18px;
     }
 
     .logo-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
     }
 
     .navbar-links {
@@ -139,8 +172,8 @@
     }
 
     .nav-link {
-        font-size: 14px;
-        padding: 6px 12px;
+        font-size: 13px;
+        padding: 8px 14px;
     }
 
     .user-details {
@@ -148,15 +181,15 @@
     }
 
     .auth-buttons .btn {
-        min-width: 70px;
-        font-size: 13px;
+        min-width: 75px;
+        font-size: 12px;
     }
 }
 
 @media (max-width: 480px) {
     .nav-link {
-        padding: 6px 8px;
-        font-size: 13px;
+        padding: 6px 10px;
+        font-size: 12px;
     }
 
     .auth-buttons {
@@ -164,8 +197,8 @@
     }
 
     .auth-buttons .btn {
-        min-width: 60px;
-        font-size: 12px;
-        padding: 6px 12px;
+        min-width: 65px;
+        font-size: 11px;
+        padding: 6px 14px;
     }
 }

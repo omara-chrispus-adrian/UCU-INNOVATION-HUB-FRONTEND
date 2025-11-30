@@ -96,7 +96,7 @@ const PublicGallery = () => {
       year: 2024,
       status: 'approved',
       github_link: 'https://github.com/ucu/legal-case-mgmt',
-      image: '/images/software_development.png'
+      image: '/images/slide_1.png'
     },
     {
       id: 8,
@@ -108,7 +108,7 @@ const PublicGallery = () => {
       year: 2025,
       status: 'approved',
       github_link: 'https://github.com/ucu/voice-wheelchair',
-      image: '/images/robotics_project.png'
+      image: '/images/slide_2.png'
     },
     {
       id: 9,
@@ -120,7 +120,7 @@ const PublicGallery = () => {
       year: 2025,
       status: 'approved',
       github_link: 'https://github.com/ucu/language-platform',
-      image: '/images/mobile_app_dev.png'
+      image: '/images/slide_3.png'
     },
     {
       id: 10,
@@ -132,7 +132,7 @@ const PublicGallery = () => {
       year: 2024,
       status: 'approved',
       github_link: 'https://github.com/ucu/climate-analysis',
-      image: '/images/ai_machine_learning.png'
+      image: '/images/slide_4.png'
     }
   ];
 

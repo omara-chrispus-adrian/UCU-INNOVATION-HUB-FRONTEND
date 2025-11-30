@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
@@ -44,6 +45,9 @@ const Navbar = () => {
                         <Link to="/" className="nav-link">
                             Gallery
                         </Link>
+
+                        {/* Theme Toggle */}
+                        <ThemeToggle />
 
                         {isAuthenticated ? (
                             <>
