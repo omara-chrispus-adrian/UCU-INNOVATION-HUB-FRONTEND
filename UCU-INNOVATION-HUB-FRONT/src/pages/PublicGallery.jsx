@@ -276,6 +276,59 @@ const PublicGallery = () => {
           </div>
         )}
       </section>
+
+      {/* Footer Section */}
+      <footer className="footer-section">
+        <div className="container-custom">
+          <div className="footer-content">
+            {/* Location Details */}
+            <div className="footer-column">
+              <h3 className="footer-heading">📍 Location</h3>
+              <div className="location-info">
+                <p><strong>University:</strong> Uganda Christian University</p>
+                <p><strong>Campus:</strong> Mukono Campus</p>
+                <p><strong>Address:</strong> P.O. Box 4, Mukono</p>
+                <p><strong>City:</strong> Mukono</p>
+                <p><strong>Country:</strong> Uganda</p>
+              </div>
+            </div>
+
+            {/* Contact Details */}
+            <div className="footer-column">
+              <h3 className="footer-heading">📧 Contact</h3>
+              <div className="contact-links">
+                <p><a href="mailto:innovationhub@ucu.ac.ug">innovationhub@ucu.ac.ug</a></p>
+                <p><a href="tel:+256256267273">+256 (256) 267 273</a></p>
+                <p><a href="https://www.ucu.ac.ug" target="_blank" rel="noopener noreferrer">www.ucu.ac.ug</a></p>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="footer-column">
+              <h3 className="footer-heading">🔗 Quick Links</h3>
+              <ul className="footer-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+              </ul>
+            </div>
+
+            {/* About */}
+            <div className="footer-column">
+              <h3 className="footer-heading">ℹ️ About</h3>
+              <p className="footer-description">
+                UCU Innovators Hub showcases cutting-edge student projects in Robotics, IoT, AI, and Embedded Systems from Uganda Christian University.
+              </p>
+            </div>
+          </div>
+
+          {/* Footer Bottom */}
+          <div className="footer-bottom">
+            <p>&copy; {new Date().getFullYear()} Uganda Christian University. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

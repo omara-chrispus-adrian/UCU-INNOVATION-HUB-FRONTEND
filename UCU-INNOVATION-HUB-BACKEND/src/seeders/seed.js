@@ -16,7 +16,7 @@ const seedData = async () => {
         const student = await User.create({
             email: 'student@ucu.ac.ug',
             password: 'password123',
-            full_name: 'John Doe',
+            full_name: 'Sserunkuma Michael',
             role: 'student',
             faculty: 'Faculty of Science and Technology',
             year: 3
@@ -25,7 +25,7 @@ const seedData = async () => {
         const supervisor = await User.create({
             email: 'supervisor@ucu.ac.ug',
             password: 'password123',
-            full_name: 'Dr. Jane Smith',
+            full_name: 'Dr. Matovu Benjamin',
             role: 'supervisor',
             faculty: 'Faculty of Science and Technology'
         });
@@ -33,7 +33,7 @@ const seedData = async () => {
         const admin = await User.create({
             email: 'admin@ucu.ac.ug',
             password: 'password123',
-            full_name: 'Admin User',
+            full_name: 'Omiya Arnold Will',
             role: 'admin'
         });
 

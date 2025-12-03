@@ -1,0 +1,238 @@
+/* Notification Center Container */
+.notification-center {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.notification-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  max-width: 450px;
+  margin: 0 auto;
+  width: 100%;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .notification-container {
+    max-width: calc(100% - 40px);
+    padding: 16px 20px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-center {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+
+  .notification-container {
+    flex-direction: column-reverse;
+    max-width: 100%;
+    padding: 12px;
+    gap: 8px;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+/* Notification Toast */
+.notification-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-toast {
+    animation: slideInBottom 0.3s ease-out;
+  }
+
+  @keyframes slideInBottom {
+    from {
+      transform: translateY(200px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Notification Types */
+.notification-success {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  border-left: 4px solid #2e7d32;
+}
+
+.notification-error {
+  background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+  color: white;
+  border-left: 4px solid #c62828;
+}
+
+.notification-warning {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+  border-left: 4px solid #e65100;
+}
+
+.notification-info {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  border-left: 4px solid #1565c0;
+}
+
+/* Notification Icon */
+.notification-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Notification Content */
+.notification-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notification-title {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.notification-message {
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.95;
+}
+
+/* Notification Close Button */
+.notification-close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 24px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.notification-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Progress Bar */
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.5);
+  animation: progressBar 5s linear forwards;
+}
+
+@keyframes progressBar {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Dark Mode Support */
+.dark-theme .notification-toast {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dark-theme .notification-success {
+  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+  border-left-color: #1b5e20;
+}
+
+.dark-theme .notification-error {
+  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+  border-left-color: #b71c1c;
+}
+
+.dark-theme .notification-warning {
+  background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
+  border-left-color: #bf360c;
+}
+
+.dark-theme .notification-info {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  border-left-color: #0d47a1;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .notification-toast {
+    animation: none;
+  }
+
+  .notification-close:hover {
+    transform: none;
+  }
+
+  .notification-progress {
+    animation: none;
+  }
+}

@@ -1,0 +1,77 @@
+/* Notification Center Responsive Layout */
+
+.notification-center {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.notification-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  max-width: 450px;
+  margin: 0 auto;
+  width: 100%;
+  pointer-events: auto;
+}
+
+/* Desktop - Top Right */
+@media (min-width: 769px) {
+  .notification-center {
+    top: 0;
+    right: 0;
+    left: auto;
+  }
+
+  .notification-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    left: auto;
+    max-width: 420px;
+    width: calc(100% - 40px);
+    margin: 0;
+  }
+}
+
+/* Tablet - Top Center */
+@media (min-width: 481px) and (max-width: 768px) {
+  .notification-container {
+    max-width: calc(100% - 40px);
+    padding: 16px 20px;
+    gap: 10px;
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+  }
+}
+
+/* Mobile - Bottom */
+@media (max-width: 480px) {
+  .notification-center {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+
+  .notification-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    flex-direction: column-reverse;
+    max-width: 100%;
+    padding: 12px;
+    gap: 8px;
+    border-radius: 12px 12px 0 0;
+    margin: 0;
+  }
+}

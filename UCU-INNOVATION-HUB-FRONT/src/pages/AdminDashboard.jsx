@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import '../styles/Dashboard.css';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const { success, warning, info } = useNotification();
   const [activeTab, setActiveTab] = useState('analytics');
   
   const [analytics] = useState({
@@ -54,11 +56,34 @@ const AdminDashboard = () => {
   ]);
 
   const deactivateUser = (userId) => {
+    const user = users.find(u => u.id === userId);
+    const isActivating = user?.status === 'inactive';
+    
     setUsers(users.map(u => 
       u.id === userId 
         ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' }
         : u
     ));
+
+    if (isActivating) {
+      success(
+        `User "${user?.name}" has been activated.`,
+        'User Activated'
+      );
+      info(
+        'Notification sent to the user.',
+        'Notification Sent'
+      );
+    } else {
+      warning(
+        `User "${user?.name}" has been deactivated.`,
+        'User Deactivated'
+      );
+      info(
+        'Notification sent to the user.',
+        'Notification Sent'
+      );
+    }
   };
 
   return (
